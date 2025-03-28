@@ -14,6 +14,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   output: 'standalone',
+  distDir: '.next',
+  images: {
+    unoptimized: true,
+    disableStaticImages: false,
+  },
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,

@@ -2,6 +2,7 @@ import { Logo } from "@/components/logo"
 import { LoginForm } from "./login-form"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Suspense } from "react"
+import Image from "next/image"
 
 export default function LoginPage() {
   return (
@@ -19,10 +20,12 @@ export default function LoginPage() {
               <p className="text-gray-500 dark:text-gray-400">Sign in to access the platform</p>
             </div>
             <div className="relative hidden h-[300px] w-full overflow-hidden rounded-xl md:block">
-              <img
-                src="/images/skills-background.jpg"
+              <Image
+                src={require('../../public/images/skills-background.jpg')}
                 alt="Skills background"
-                className="h-full w-full object-cover"
+                fill
+                style={{ objectFit: 'cover' }}
+                priority
               />
             </div>
           </div>
