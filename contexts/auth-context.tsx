@@ -3,38 +3,58 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import Cookies from "js-cookie"
 
-type UserRole = "admin" | "instructor" | "student" | null
-
-export interface User {
+interface User {
   id: string
   name: string
   email: string
-  role: UserRole
-  avatar?: string
+  role: "admin" | "instructor" | "student"
 }
 
 interface AuthContextType {
   user: User | null
-  login: (user: User) => void
+  login: (email: string, password: string) => Promise<void>
   logout: () => void
-  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+const demoUsers: Record<string, User> = {
+  "admin@example.com": {
+    id: "1",
+    name: "Admin User",
+    email: "admin@example.com",
+    role: "admin",
+  },
+  "instructor@example.com": {
+    id: "2",
+    name: "Instructor User",
+    email: "instructor@example.com",
+    role: "instructor",
+  },
+  "student@example.com": {
+    id: "3",
+    name: "Student User",
+    email: "student@example.com",
+    role: "student",
+  },
+}
+
+const demoPasswords: Record<string, string> = {
+  "admin@example.com": "admin123",
+  "instructor@example.com": "instructor123",
+  "student@example.com": "student123",
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     console.log("AuthProvider mounted")
-    // Check if user is stored in localStorage and token in cookies
     const storedUser = localStorage.getItem("user")
-    const token = Cookies.get("auth-token")
-    
+    const token = Cookies.get("token")
     console.log("Stored user:", storedUser)
-    console.log("Stored token:", token)
-    
+    console.log("Token:", token)
+
     if (storedUser && token) {
       try {
         const parsedUser = JSON.parse(storedUser)
@@ -43,31 +63,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Failed to parse stored user:", error)
         localStorage.removeItem("user")
-        Cookies.remove("auth-token")
+        Cookies.remove("token")
       }
     }
-    setIsLoading(false)
   }, [])
 
-  const login = (userData: User) => {
-    console.log("Login called with:", userData)
-    setUser(userData)
-    localStorage.setItem("user", JSON.stringify(userData))
-    // Create a simple JWT-like token with user data
-    const token = btoa(JSON.stringify({ id: userData.id, role: userData.role }))
-    Cookies.set("auth-token", token, { expires: 7 }) // Token expires in 7 days
-    console.log("Login completed, user set to:", userData)
+  const login = async (email: string, password: string) => {
+    console.log("Login called with email:", email)
+    
+    // Demo authentication
+    const demoUser = demoUsers[email]
+    const correctPassword = demoPasswords[email]
+
+    if (demoUser && password === correctPassword) {
+      console.log("Demo user found:", demoUser)
+      setUser(demoUser)
+      localStorage.setItem("user", JSON.stringify(demoUser))
+      Cookies.set("token", "demo-token", { expires: 7 })
+      console.log("Login completed")
+    } else {
+      throw new Error("Invalid credentials")
+    }
   }
 
   const logout = () => {
     console.log("Logout called")
     setUser(null)
     localStorage.removeItem("user")
-    Cookies.remove("auth-token")
+    Cookies.remove("token")
     console.log("Logout completed")
   }
 
-  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {
