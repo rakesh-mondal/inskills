@@ -13,13 +13,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  images: {
-    unoptimized: true,
-    domains: [],
-    remotePatterns: [],
-  },
   output: 'standalone',
-  assetPrefix: process.env.NEXT_PUBLIC_BASE_URL || '',
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,

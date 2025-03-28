@@ -18,13 +18,13 @@ export default function LoginPage() {
               <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Welcome to Inspiria inskills</h1>
               <p className="text-gray-500 dark:text-gray-400">Sign in to access the platform</p>
             </div>
-            <div 
-              className="relative hidden h-[300px] w-full overflow-hidden rounded-xl md:block bg-cover bg-center bg-no-repeat"
-              style={{ 
-                backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_URL || ''}/images/skills-background.jpg)`,
-                backgroundColor: '#1E5EBF'
-              }}
-            />
+            <div className="relative hidden h-[300px] w-full overflow-hidden rounded-xl md:block">
+              <img
+                src="/images/skills-background.jpg"
+                alt="Skills background"
+                className="h-full w-full object-cover"
+              />
+            </div>
           </div>
           <div className="flex flex-col justify-center space-y-4">
             <Card>
