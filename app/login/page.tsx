@@ -2,7 +2,6 @@ import { Logo } from "@/components/logo"
 import { LoginForm } from "./login-form"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Suspense } from "react"
-import Image from "next/image"
 
 export default function LoginPage() {
   return (
@@ -19,16 +18,10 @@ export default function LoginPage() {
               <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Welcome to Inspiria inskills</h1>
               <p className="text-gray-500 dark:text-gray-400">Sign in to access the platform</p>
             </div>
-            <div className="relative hidden h-[300px] w-full overflow-hidden rounded-xl md:block">
-              <Image
-                src="/images/skills-background.jpg"
-                alt="Skills background"
-                width={1920}
-                height={1080}
-                className="absolute inset-0 h-full w-full object-cover"
-                priority
-              />
-            </div>
+            <div 
+              className="relative hidden h-[300px] w-full overflow-hidden rounded-xl md:block bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: 'url("/images/skills-background.jpg")' }}
+            />
           </div>
           <div className="flex flex-col justify-center space-y-4">
             <Card>

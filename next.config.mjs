@@ -14,9 +14,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: false,
+    unoptimized: true,
+    domains: [],
     remotePatterns: [],
   },
+  output: 'standalone',
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
