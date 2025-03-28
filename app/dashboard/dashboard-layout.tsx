@@ -108,7 +108,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </header>
       <div className="flex flex-1">
-        <aside className="hidden w-64 border-r bg-white dark:bg-gray-950 md:block">
+        <aside className="hidden w-64 border-r bg-white dark:bg-gray-950 md:block sticky top-16 h-[calc(100vh-4rem)]">
           <div className="flex h-full flex-col">
             <div className="p-4 border-b">
               <div className="relative">
