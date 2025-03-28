@@ -46,10 +46,10 @@ export function LoginForm() {
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Login with complete user data
-      login(userData)
+      await login(userData)
     } catch (error) {
-      setError("An error occurred during login. Please try again.")
       console.error("Login error:", error)
+      setError("An error occurred during login. Please try again.")
     } finally {
       setIsLoading(false)
     }

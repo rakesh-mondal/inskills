@@ -34,35 +34,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     if (storedUser && storedToken) {
       try {
-        setUser(JSON.parse(storedUser))
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+        // Ensure cookie is set if we have a token
+        document.cookie = `auth-token=${storedToken}; path=/`
       } catch (error) {
         console.error("Failed to parse stored user:", error)
         localStorage.removeItem("user")
         localStorage.removeItem("auth-token")
+        document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
       }
     }
     setIsLoading(false)
   }, [])
 
   const login = (userData: User) => {
-    setUser(userData)
-    localStorage.setItem("user", JSON.stringify(userData))
-    
-    // Create a simple JWT-like token with user data
-    const token = btoa(JSON.stringify({ id: userData.id, role: userData.role }))
-    localStorage.setItem("auth-token", token)
-    
-    // Set cookie for middleware
-    document.cookie = `auth-token=${token}; path=/`
+    try {
+      setUser(userData)
+      localStorage.setItem("user", JSON.stringify(userData))
+      
+      // Create a simple JWT-like token with user data
+      const token = btoa(JSON.stringify({ 
+        id: userData.id, 
+        role: userData.role,
+        email: userData.email,
+        name: userData.name
+      }))
+      
+      localStorage.setItem("auth-token", token)
+      
+      // Set cookie for middleware with proper attributes
+      document.cookie = `auth-token=${token}; path=/; SameSite=Strict`
+      
+      // Force a page reload to ensure middleware picks up the new token
+      window.location.href = "/"
+    } catch (error) {
+      console.error("Login error:", error)
+      throw error
+    }
   }
 
   const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
-    localStorage.removeItem("auth-token")
-    // Remove cookie
-    document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    router.push("/login")
+    try {
+      setUser(null)
+      localStorage.removeItem("user")
+      localStorage.removeItem("auth-token")
+      // Remove cookie
+      document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+      router.push("/login")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
   }
 
   return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
