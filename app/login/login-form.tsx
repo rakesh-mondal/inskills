@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,7 +25,6 @@ export function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const router = useRouter()
   const { login } = useAuth()
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -34,31 +32,27 @@ export function LoginForm() {
     setIsLoading(true)
     setError("")
 
-    // Find matching demo credential
-    const userData = DEMO_CREDENTIALS.find(cred => cred.email === email)
-    
-    if (!userData) {
-      setError("Invalid email. Please use one of the demo accounts.")
-      setIsLoading(false)
-      return
-    }
+    try {
+      // Find matching demo credential
+      const userData = DEMO_CREDENTIALS.find(cred => cred.email === email)
+      
+      if (!userData) {
+        setError("Invalid email. Please use one of the demo accounts.")
+        setIsLoading(false)
+        return
+      }
 
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false)
+      // Simulate authentication
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Login with complete user data
       login(userData)
-
-      // Redirect based on role
-      if (userData.role === "admin") {
-        router.push("/dashboard")
-      } else if (userData.role === "instructor") {
-        router.push("/dashboard/instructor")
-      } else if (userData.role === "student") {
-        router.push("/student")
-      }
-    }, 1000)
+    } catch (error) {
+      setError("An error occurred during login. Please try again.")
+      console.error("Login error:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -93,6 +87,7 @@ export function LoginForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
         />
       </div>
       <div className="space-y-2">
@@ -102,11 +97,18 @@ export function LoginForm() {
             Forgot password?
           </Link>
         </div>
-        <Input id="password" required type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <Input 
+          id="password" 
+          required 
+          type="password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
+        />
       </div>
 
       <div className="flex items-center space-x-2">
-        <Checkbox id="remember" />
+        <Checkbox id="remember" disabled={isLoading} />
         <Label
           htmlFor="remember"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

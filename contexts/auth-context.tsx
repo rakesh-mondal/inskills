@@ -1,110 +1,71 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import Cookies from "js-cookie"
+import { useRouter } from "next/navigation"
 
-interface User {
+type UserRole = "admin" | "instructor" | "student" | null
+
+export interface User {
   id: string
   name: string
   email: string
-  role: "admin" | "instructor" | "student"
+  role: UserRole
+  avatar?: string
 }
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<void>
+  login: (user: User) => void
   logout: () => void
+  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const demoUsers: Record<string, User> = {
-  "admin@example.com": {
-    id: "1",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-  },
-  "instructor@example.com": {
-    id: "2",
-    name: "Instructor User",
-    email: "instructor@example.com",
-    role: "instructor",
-  },
-  "student@example.com": {
-    id: "3",
-    name: "Student User",
-    email: "student@example.com",
-    role: "student",
-  },
-}
-
-const demoPasswords: Record<string, string> = {
-  "admin@example.com": "admin123",
-  "instructor@example.com": "instructor123",
-  "student@example.com": "student123",
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    console.log("AuthProvider mounted")
+    // Check if user and token are stored in localStorage on component mount
     const storedUser = localStorage.getItem("user")
-    const token = Cookies.get("token")
-    console.log("Stored user:", storedUser)
-    console.log("Token:", token)
-
-    if (storedUser && token) {
+    const storedToken = localStorage.getItem("auth-token")
+    
+    if (storedUser && storedToken) {
       try {
-        const parsedUser = JSON.parse(storedUser)
-        console.log("Parsed user:", parsedUser)
-        setUser(parsedUser)
+        setUser(JSON.parse(storedUser))
       } catch (error) {
         console.error("Failed to parse stored user:", error)
         localStorage.removeItem("user")
-        Cookies.remove("token")
+        localStorage.removeItem("auth-token")
       }
     }
+    setIsLoading(false)
   }, [])
 
-  const login = async (email: string, password: string) => {
-    console.log("Login called with email:", email)
+  const login = (userData: User) => {
+    setUser(userData)
+    localStorage.setItem("user", JSON.stringify(userData))
     
-    // Demo authentication
-    const demoUser = demoUsers[email]
-    const correctPassword = demoPasswords[email]
-
-    if (demoUser && password === correctPassword) {
-      console.log("Demo user found:", demoUser)
-      setUser(demoUser)
-      localStorage.setItem("user", JSON.stringify(demoUser))
-      Cookies.set("token", "demo-token", { expires: 7 })
-      console.log("Login completed")
-    } else {
-      throw new Error("Invalid credentials")
-    }
+    // Create a simple JWT-like token with user data
+    const token = btoa(JSON.stringify({ id: userData.id, role: userData.role }))
+    localStorage.setItem("auth-token", token)
+    
+    // Set cookie for middleware
+    document.cookie = `auth-token=${token}; path=/`
   }
 
   const logout = () => {
-    console.log("Logout called")
     setUser(null)
     localStorage.removeItem("user")
-    Cookies.remove("token")
-    console.log("Logout completed")
+    localStorage.removeItem("auth-token")
+    // Remove cookie
+    document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    router.push("/login")
   }
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
