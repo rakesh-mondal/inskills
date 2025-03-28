@@ -23,7 +23,12 @@ export function middleware(request: NextRequest) {
   // If token exists and trying to access login/register, redirect to appropriate dashboard
   if (token && (pathname === "/login" || pathname === "/register")) {
     try {
-      const userData = JSON.parse(atob(token.split(".")[1]))
+      // Parse the JWT-like token
+      const [header, payload] = token.split(".")
+      if (!header || !payload) {
+        throw new Error("Invalid token format")
+      }
+      const userData = JSON.parse(atob(payload))
       const role = userData.role
 
       let redirectPath = "/"
@@ -43,6 +48,7 @@ export function middleware(request: NextRequest) {
 
       return NextResponse.redirect(new URL(redirectPath, request.url))
     } catch (error) {
+      console.error("Token parsing error:", error)
       // If token is invalid, clear it and redirect to login
       const response = NextResponse.redirect(new URL("/login", request.url))
       response.cookies.delete("auth-token")
@@ -53,7 +59,12 @@ export function middleware(request: NextRequest) {
   // If accessing root path with token, redirect to appropriate dashboard
   if (pathname === "/" && token) {
     try {
-      const userData = JSON.parse(atob(token.split(".")[1]))
+      // Parse the JWT-like token
+      const [header, payload] = token.split(".")
+      if (!header || !payload) {
+        throw new Error("Invalid token format")
+      }
+      const userData = JSON.parse(atob(payload))
       const role = userData.role
 
       let redirectPath = "/"
@@ -73,6 +84,7 @@ export function middleware(request: NextRequest) {
 
       return NextResponse.redirect(new URL(redirectPath, request.url))
     } catch (error) {
+      console.error("Token parsing error:", error)
       // If token is invalid, clear it and redirect to login
       const response = NextResponse.redirect(new URL("/login", request.url))
       response.cookies.delete("auth-token")

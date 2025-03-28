@@ -21,15 +21,13 @@ const DEMO_CREDENTIALS: User[] = [
 ]
 
 export function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const { login } = useAuth()
+  const { login, isLoggingIn } = useAuth()
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setIsLoading(true)
     setError("")
 
     try {
@@ -38,20 +36,14 @@ export function LoginForm() {
       
       if (!userData) {
         setError("Invalid email. Please use one of the demo accounts.")
-        setIsLoading(false)
         return
       }
-
-      // Simulate authentication
-      await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Login with complete user data
       await login(userData)
     } catch (error) {
       console.error("Login error:", error)
       setError("An error occurred during login. Please try again.")
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -87,7 +79,7 @@ export function LoginForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          disabled={isLoading}
+          disabled={isLoggingIn}
         />
       </div>
       <div className="space-y-2">
@@ -103,12 +95,12 @@ export function LoginForm() {
           type="password" 
           value={password} 
           onChange={(e) => setPassword(e.target.value)}
-          disabled={isLoading}
+          disabled={isLoggingIn}
         />
       </div>
 
       <div className="flex items-center space-x-2">
-        <Checkbox id="remember" disabled={isLoading} />
+        <Checkbox id="remember" disabled={isLoggingIn} />
         <Label
           htmlFor="remember"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -116,8 +108,8 @@ export function LoginForm() {
           Remember me
         </Label>
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? (
+      <Button type="submit" className="w-full" disabled={isLoggingIn}>
+        {isLoggingIn ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Signing in...
