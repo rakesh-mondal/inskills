@@ -20,7 +20,10 @@ export default function LoginPage() {
             </div>
             <div 
               className="relative hidden h-[300px] w-full overflow-hidden rounded-xl md:block bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: 'url("/images/skills-background.jpg")' }}
+              style={{ 
+                backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_URL || ''}/images/skills-background.jpg)`,
+                backgroundColor: '#1E5EBF'
+              }}
             />
           </div>
           <div className="flex flex-col justify-center space-y-4">

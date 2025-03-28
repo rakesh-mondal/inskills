@@ -19,6 +19,7 @@ const nextConfig = {
     remotePatterns: [],
   },
   output: 'standalone',
+  assetPrefix: process.env.NEXT_PUBLIC_BASE_URL || '',
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
