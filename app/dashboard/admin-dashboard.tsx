@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, FileText, PlusCircle, Users, AlertTriangle, TrendingUp } from "lucide-react"
+import { Calendar, FileText, PlusCircle, Users, AlertTriangle, TrendingUp, Bell } from "lucide-react"
 import {
   LineChart,
   Line,
@@ -15,6 +15,23 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 
 const performanceData = [
   { name: "CS2023A", attendance: 92, engagement: 85, progress: 78 },
@@ -112,16 +129,36 @@ const alerts = [
 export function AdminDashboard() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your inskills program performance</p>
+          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <p className="text-muted-foreground">
+            Welcome back! Here's an overview of your platform.
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Create Session
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="icon">
+            <Bell className="h-4 w-4" />
           </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Actions</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Batch
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <FileText className="mr-2 h-4 w-4" />
+                Generate Report
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Users className="mr-2 h-4 w-4" />
+                Manage Users
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -132,177 +169,140 @@ export function AdminDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,248</div>
+            <div className="text-2xl font-bold">1,234</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-500">+12%</span> from last semester
+              +12% from last month
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Batches</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">24</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-500">+4</span> new this semester
+              +4 from yesterday
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Attendance</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">89%</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-500">+2%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Engagement</CardTitle>
+            <CardTitle className="text-sm font-medium">Average Engagement</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">84%</div>
+            <div className="text-2xl font-bold">85%</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-red-500">-1%</span> from last month
+              +2% from last week
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Alerts</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">3</div>
+            <p className="text-xs text-muted-foreground">
+              -1 from yesterday
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-7">
-        <Card className="md:col-span-1 lg:col-span-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Program Progress</CardTitle>
-            <CardDescription>Average skill development progress across semesters</CardDescription>
+            <CardTitle>Performance Overview</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={progressData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="semester1" stroke="#1E5EBF" activeDot={{ r: 8 }} />
-                  <Line type="monotone" dataKey="semester2" stroke="#FF7A00" />
-                  <Line type="monotone" dataKey="semester3" stroke="#10B981" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+          <CardContent className="pl-2">
+            <ResponsiveContainer width="100%" height={350}>
+              <LineChart data={progressData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="semester1" stroke="#8884d8" />
+                <Line type="monotone" dataKey="semester2" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="semester3" stroke="#ffc658" />
+              </LineChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card className="md:col-span-1 lg:col-span-3">
+        <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Batch Performance</CardTitle>
-            <CardDescription>Comparison across key metrics</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsBarChart data={performanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="attendance" fill="#1E5EBF" />
-                  <Bar dataKey="engagement" fill="#FF7A00" />
-                  <Bar dataKey="progress" fill="#10B981" />
-                </RechartsBarChart>
-              </ResponsiveContainer>
-            </div>
+            <ResponsiveContainer width="100%" height={350}>
+              <RechartsBarChart data={performanceData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="attendance" fill="#8884d8" />
+                <Bar dataKey="engagement" fill="#82ca9d" />
+                <Bar dataKey="progress" fill="#ffc658" />
+              </RechartsBarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-7">
-        <Card className="md:col-span-1 lg:col-span-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Upcoming Sessions</CardTitle>
-            <CardDescription>Next 3 scheduled sessions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {upcomingSessions.map((session) => (
-                <div key={session.id} className="flex items-start space-x-4">
-                  <div className="rounded-full bg-primary-50 p-2">
-                    <Calendar className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{session.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {session.batch} • {session.date}
-                    </p>
-                    <p className="text-xs text-muted-foreground">Instructor: {session.instructor}</p>
-                  </div>
-                </div>
-              ))}
-              <Button variant="outline" className="w-full">
-                View All Sessions
-              </Button>
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Batch</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Instructor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {upcomingSessions.map((session) => (
+                  <TableRow key={session.id}>
+                    <TableCell className="font-medium">{session.title}</TableCell>
+                    <TableCell>{session.batch}</TableCell>
+                    <TableCell>{session.date}</TableCell>
+                    <TableCell>{session.instructor}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
-        <Card className="md:col-span-1 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Alerts</CardTitle>
-            <CardDescription>Issues requiring attention</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {alerts.map((alert) => (
-                <div key={alert.id} className="flex items-start space-x-4">
-                  <div className={`rounded-full p-2 ${alert.severity === "high" ? "bg-red-50" : "bg-amber-50"}`}>
-                    <AlertTriangle
-                      className={`h-4 w-4 ${alert.severity === "high" ? "text-red-500" : "text-amber-500"}`}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{alert.title}</p>
-                    <p className="text-xs text-muted-foreground">{alert.description}</p>
-                  </div>
-                </div>
-              ))}
-              <Button variant="outline" className="w-full">
-                View All Alerts
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="md:col-span-1 lg:col-span-2">
+        <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates from the platform</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {activityFeed.slice(0, 3).map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-4">
-                  <div className="rounded-full bg-secondary-50 p-2">
-                    {activity.type === "session" && <Calendar className="h-4 w-4 text-secondary" />}
-                    {activity.type === "feedback" && <FileText className="h-4 w-4 text-secondary" />}
-                    {activity.type === "alert" && <AlertTriangle className="h-4 w-4 text-secondary" />}
-                    {activity.type === "update" && <TrendingUp className="h-4 w-4 text-secondary" />}
+            <ScrollArea className="h-[350px]">
+              <div className="space-y-4">
+                {activityFeed.map((activity) => (
+                  <div key={activity.id} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium leading-none">{activity.title}</p>
+                      <Badge variant="secondary" className="text-xs">
+                        {activity.time}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{activity.description}</p>
+                    <Separator className="my-4" />
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{activity.title}</p>
-                    <p className="text-xs text-muted-foreground">{activity.description}</p>
-                    <p className="text-xs text-muted-foreground">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
-              <Button variant="outline" className="w-full">
-                View All Activity
-              </Button>
-            </div>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
       </div>

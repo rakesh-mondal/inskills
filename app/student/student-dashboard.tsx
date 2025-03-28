@@ -29,7 +29,7 @@ export function StudentDashboard() {
   }))
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-6">
       {/* Welcome and Upcoming Session */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

@@ -4,13 +4,14 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
+import { RootLayoutContent } from "./root-layout-content"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Inspiria inskills Platform",
   description: "A comprehensive platform for soft skills development",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -22,7 +23,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <RootLayoutContent>{children}</RootLayoutContent>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
