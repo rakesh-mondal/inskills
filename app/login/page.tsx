@@ -1,6 +1,7 @@
 import { Logo } from "@/components/logo"
 import { LoginForm } from "./login-form"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Suspense } from "react"
 
 export default function LoginPage() {
   return (
@@ -39,7 +40,9 @@ export default function LoginPage() {
                 <CardDescription>Enter your credentials to access your account</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <LoginForm />
+                <Suspense fallback={<div>Loading...</div>}>
+                  <LoginForm />
+                </Suspense>
               </CardContent>
               <CardFooter className="flex flex-col items-start space-y-2">
                 <div className="text-sm text-muted-foreground">
