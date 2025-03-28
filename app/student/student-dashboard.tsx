@@ -6,6 +6,7 @@ import { Award, Calendar, Lightbulb, TrendingUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
+import type { SkillArea } from "@/contexts/student-context"
 
 export function StudentDashboard() {
   const { student, loading } = useStudent()
@@ -15,13 +16,13 @@ export function StudentDashboard() {
   }
 
   // Calculate days until next session
-  const nextSession = student.upcomingSessions[0]
+  const nextSession = student.upcomingSessions?.[0]
   const daysUntil = nextSession
     ? Math.ceil((new Date(nextSession.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     : 0
 
   // Format skills data for radar chart
-  const skillChartData = student.skills.map((skill) => ({
+  const skillChartData = (student.skillAreas || []).map((skill: SkillArea) => ({
     subject: skill.name,
     A: skill.progress,
     fullMark: 100,
@@ -38,18 +39,20 @@ export function StudentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-start space-x-4">
-                <div className="rounded-full bg-primary/10 p-2">
-                  <Calendar className="h-5 w-5 text-primary" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Next Session in {daysUntil} days</p>
-                  <div className="text-sm text-muted-foreground">
-                    {nextSession.title} on {nextSession.date}
+              {nextSession && (
+                <div className="flex items-start space-x-4">
+                  <div className="rounded-full bg-primary/10 p-2">
+                    <Calendar className="h-5 w-5 text-primary" />
                   </div>
-                  <Badge className="mt-2">{nextSession.role}</Badge>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Next Session in {daysUntil} days</p>
+                    <div className="text-sm text-muted-foreground">
+                      {nextSession.title} on {nextSession.date}
+                    </div>
+                    <Badge className="mt-2">{nextSession.role}</Badge>
+                  </div>
                 </div>
-              </div>
+              )}
               <div>
                 <div className="mb-1 text-sm font-medium">Session Preparation: 2 of 5 steps completed</div>
                 <Progress value={40} className="h-2" />
@@ -63,7 +66,7 @@ export function StudentDashboard() {
           <CardHeader>
             <CardTitle>Your Current Standing</CardTitle>
             <CardDescription>
-              Ranking {student.rank} out of {student.totalStudents} students
+              Ranking {student.rank || 'N/A'} out of {student.totalStudents || 'N/A'} students
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -73,7 +76,7 @@ export function StudentDashboard() {
                   <TrendingUp className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{student.points}</p>
+                  <p className="text-2xl font-bold">{student.points || 0}</p>
                   <p className="text-xs text-muted-foreground">Total points earned</p>
                 </div>
               </div>
