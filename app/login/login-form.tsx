@@ -12,12 +12,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useAuth } from "@/contexts/auth-context"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { InfoIcon, Loader2 } from "lucide-react"
+import type { User } from "@/contexts/auth-context"
 
 // Demo login credentials
-const DEMO_CREDENTIALS = [
-  { role: "admin", email: "admin@inskills.com" },
-  { role: "instructor", email: "instructor@inskills.com" },
-  { role: "student", email: "student@inskills.com" },
+const DEMO_CREDENTIALS: User[] = [
+  { role: "admin", email: "admin@inskills.com", name: "Admin User", id: "admin-001" },
+  { role: "instructor", email: "instructor@inskills.com", name: "Instructor User", id: "instructor-001" },
+  { role: "student", email: "student@inskills.com", name: "Student User", id: "student-001" },
 ]
 
 export function LoginForm() {
@@ -33,16 +34,10 @@ export function LoginForm() {
     setIsLoading(true)
     setError("")
 
-    // Determine role based on email
-    let role = null
-
-    if (email === DEMO_CREDENTIALS[0].email) {
-      role = "admin"
-    } else if (email === DEMO_CREDENTIALS[1].email) {
-      role = "instructor"
-    } else if (email === DEMO_CREDENTIALS[2].email) {
-      role = "student"
-    } else {
+    // Find matching demo credential
+    const userData = DEMO_CREDENTIALS.find(cred => cred.email === email)
+    
+    if (!userData) {
       setError("Invalid email. Please use one of the demo accounts.")
       setIsLoading(false)
       return
@@ -52,15 +47,15 @@ export function LoginForm() {
     setTimeout(() => {
       setIsLoading(false)
 
-      // Login with determined role
-      login({ email, role })
+      // Login with complete user data
+      login(userData)
 
       // Redirect based on role
-      if (role === "admin") {
+      if (userData.role === "admin") {
         router.push("/dashboard")
-      } else if (role === "instructor") {
+      } else if (userData.role === "instructor") {
         router.push("/dashboard/instructor")
-      } else if (role === "student") {
+      } else if (userData.role === "student") {
         router.push("/student")
       }
     }, 1000)

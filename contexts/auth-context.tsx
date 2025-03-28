@@ -4,9 +4,12 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 
 type UserRole = "admin" | "instructor" | "student" | null
 
-interface User {
+export interface User {
+  id: string
+  name: string
   email: string
   role: UserRole
+  avatar?: string
 }
 
 interface AuthContextType {
@@ -23,14 +26,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    // Check if user is stored in localStorage on component mount
+    // Check if user and token are stored in localStorage on component mount
     const storedUser = localStorage.getItem("user")
-    if (storedUser) {
+    const storedToken = localStorage.getItem("auth-token")
+    
+    if (storedUser && storedToken) {
       try {
         setUser(JSON.parse(storedUser))
       } catch (error) {
         console.error("Failed to parse stored user:", error)
         localStorage.removeItem("user")
+        localStorage.removeItem("auth-token")
       }
     }
     setIsLoading(false)
@@ -39,13 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (userData: User) => {
     setUser(userData)
     localStorage.setItem("user", JSON.stringify(userData))
+    // Create a simple JWT-like token with user data
+    const token = btoa(JSON.stringify({ id: userData.id, role: userData.role }))
+    localStorage.setItem("auth-token", token)
   }
 
   const logout = () => {
     setUser(null)
     localStorage.removeItem("user")
-    // Clear any other auth-related data from localStorage if needed
-    // For example: localStorage.removeItem("token")
+    localStorage.removeItem("auth-token")
   }
 
   return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
