@@ -50,6 +50,36 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // If accessing root path with token, redirect to appropriate dashboard
+  if (pathname === "/" && token) {
+    try {
+      const userData = JSON.parse(atob(token.split(".")[1]))
+      const role = userData.role
+
+      let redirectPath = "/"
+      switch (role) {
+        case "admin":
+          redirectPath = "/dashboard"
+          break
+        case "instructor":
+          redirectPath = "/dashboard/instructor"
+          break
+        case "student":
+          redirectPath = "/student"
+          break
+        default:
+          redirectPath = "/login"
+      }
+
+      return NextResponse.redirect(new URL(redirectPath, request.url))
+    } catch (error) {
+      // If token is invalid, clear it and redirect to login
+      const response = NextResponse.redirect(new URL("/login", request.url))
+      response.cookies.delete("auth-token")
+      return response
+    }
+  }
+
   return NextResponse.next()
 }
 
