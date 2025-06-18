@@ -10,4 +10,3 @@ import { SkillsResourcesHub } from "./skills-resources-hub"
 export default function Page() {
   return <SkillsResourcesHub />
 }
-

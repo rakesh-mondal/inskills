@@ -388,4 +388,3 @@ export function BatchManagement() {
     </div>
   )
 }
-

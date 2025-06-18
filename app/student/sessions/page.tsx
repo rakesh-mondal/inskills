@@ -10,4 +10,3 @@ import { SessionPreparation } from "./session-preparation"
 export default function Page() {
   return <SessionPreparation />
 }
-

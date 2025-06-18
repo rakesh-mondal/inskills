@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,123 +12,130 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useAuth } from "@/contexts/auth-context"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { InfoIcon, Loader2 } from "lucide-react"
-import type { User } from "@/contexts/auth-context"
-import { useRouter, useSearchParams } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { toast } from "sonner"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
 
 // Demo login credentials
-const DEMO_CREDENTIALS: User[] = [
-  { role: "admin", email: "admin@inskills.com", name: "Admin User", id: "admin-001" },
-  { role: "instructor", email: "instructor@inskills.com", name: "Instructor User", id: "instructor-001" },
-  { role: "student", email: "student@inskills.com", name: "Student User", id: "student-001" },
+const DEMO_CREDENTIALS = [
+  { role: "admin", email: "admin@inskills.com" },
+  { role: "instructor", email: "instructor@inskills.com" },
+  { role: "student", email: "student@inskills.com" },
 ]
 
-const formSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-})
-
 export function LoginForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const { login } = useAuth()
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  })
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsLoading(true)
+    setError("")
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      setIsLoading(true)
-      // Find matching demo credential
-      const userData = DEMO_CREDENTIALS.find(cred => cred.email === values.email)
-      
-      if (!userData) {
-        toast.error("Invalid email. Please use one of the demo accounts.")
-        return
-      }
+    // Determine role based on email
+    let role = null
 
-      // Login with complete user data
-      await login(userData)
-      const from = searchParams.get("from") || "/dashboard"
-      router.push(from)
-      toast.success("Successfully logged in!")
-    } catch (error) {
-      toast.error("An error occurred during login. Please try again.")
-    } finally {
+    if (email === DEMO_CREDENTIALS[0].email) {
+      role = "admin"
+    } else if (email === DEMO_CREDENTIALS[1].email) {
+      role = "instructor"
+    } else if (email === DEMO_CREDENTIALS[2].email) {
+      role = "student"
+    } else {
+      setError("Invalid email. Please use one of the demo accounts.")
       setIsLoading(false)
+      return
     }
+
+    // Simulate authentication
+    setTimeout(() => {
+      setIsLoading(false)
+
+      // Login with determined role
+      login({ email, role })
+
+      // Redirect based on role
+      if (role === "admin") {
+        router.push("/dashboard")
+      } else if (role === "instructor") {
+        router.push("/dashboard/instructor")
+      } else if (role === "student") {
+        router.push("/student")
+      }
+    }, 1000)
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <Alert className="bg-blue-50 border-blue-200">
-          <InfoIcon className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-sm">
-            <strong>Demo Accounts:</strong>
-            <br />
-            Administrator: {DEMO_CREDENTIALS[0].email}
-            <br />
-            Instructor: {DEMO_CREDENTIALS[1].email}
-            <br />
-            Student: {DEMO_CREDENTIALS[2].email}
-            <br />
-            (Any password will work)
-          </AlertDescription>
-        </Alert>
+    <form onSubmit={onSubmit} className="space-y-4">
+      <Alert className="bg-blue-50 border-blue-200">
+        <InfoIcon className="h-4 w-4 text-blue-500" />
+        <AlertDescription className="text-sm">
+          <strong>Demo Accounts:</strong>
+          <br />
+          Administrator: {DEMO_CREDENTIALS[0].email}
+          <br />
+          Instructor: {DEMO_CREDENTIALS[1].email}
+          <br />
+          Student: {DEMO_CREDENTIALS[2].email}
+          <br />
+          (Any password will work)
+        </AlertDescription>
+      </Alert>
 
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="name@example.com" type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          placeholder="Enter your email"
+          required
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your password" type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Signing in..." : "Sign in"}
-        </Button>
-      </form>
-    </Form>
+      </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Password</Label>
+          <Link href="/forgot-password" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
+        <Input id="password" required type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox id="remember" />
+        <Label
+          htmlFor="remember"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          Remember me
+        </Label>
+      </div>
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          "Sign in"
+        )}
+      </Button>
+
+      <div className="text-center text-sm">
+        New to Inspiria inskills?{" "}
+        <Link href="/register" className="font-medium text-primary underline underline-offset-4 hover:text-primary/90">
+          Create an account
+        </Link>
+      </div>
+    </form>
   )
 }
-

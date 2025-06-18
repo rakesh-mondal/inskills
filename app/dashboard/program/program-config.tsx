@@ -413,4 +413,3 @@ export function ProgramConfig() {
     </div>
   )
 }
-

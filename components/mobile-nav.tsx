@@ -27,11 +27,11 @@ import { cn } from "@/lib/utils"
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
-  const { user, logout, isLoading } = useAuth()
+  const { user, logout } = useAuth()
   const router = useRouter()
 
-  // If still loading or no user, don't show the navigation
-  if (isLoading || !user) return null
+  // If no user is logged in, don't show the navigation
+  if (!user) return null
 
   const userRole = user.role
 
@@ -105,66 +105,56 @@ export function MobileNav() {
             {userRole === "instructor" && (
               <>
                 <MobileNavItem
-                  href="/dashboard"
+                  href="/dashboard/instructor"
                   icon={<Home className="h-5 w-5" />}
                   label="Dashboard"
+                  onClick={() => setOpen(false)}
+                />
+                <MobileNavItem
+                  href="/dashboard/instructor/active-session"
+                  icon={<Calendar className="h-5 w-5" />}
+                  label="Active Session"
+                  onClick={() => setOpen(false)}
+                />
+                <MobileNavItem
+                  href="/dashboard/instructor/evaluation"
+                  icon={<ClipboardCheck className="h-5 w-5" />}
+                  label="Evaluation"
+                  onClick={() => setOpen(false)}
+                />
+                <MobileNavItem
+                  href="/dashboard/instructor/progress-tracking"
+                  icon={<LineChart className="h-5 w-5" />}
+                  label="Progress Tracking"
                   onClick={() => setOpen(false)}
                 />
                 <MobileNavItem
                   href="/dashboard/sessions"
                   icon={<Calendar className="h-5 w-5" />}
-                  label="My Sessions"
+                  label="Session Calendar"
                   onClick={() => setOpen(false)}
                 />
                 <MobileNavItem
-                  href="/dashboard/attendance"
-                  icon={<ClipboardCheck className="h-5 w-5" />}
-                  label="Attendance"
-                  onClick={() => setOpen(false)}
-                />
-                <MobileNavItem
-                  href="/dashboard/feedback"
+                  href="/dashboard/reports"
                   icon={<FileText className="h-5 w-5" />}
-                  label="Feedback"
-                  onClick={() => setOpen(false)}
-                />
-              </>
-            )}
-
-            {userRole === "student" && (
-              <>
-                <MobileNavItem
-                  href="/student"
-                  icon={<Home className="h-5 w-5" />}
-                  label="Dashboard"
-                  onClick={() => setOpen(false)}
-                />
-                <MobileNavItem
-                  href="/student/sessions"
-                  icon={<Calendar className="h-5 w-5" />}
-                  label="My Sessions"
-                  onClick={() => setOpen(false)}
-                />
-                <MobileNavItem
-                  href="/student/progress"
-                  icon={<LineChart className="h-5 w-5" />}
-                  label="Progress"
-                  onClick={() => setOpen(false)}
-                />
-                <MobileNavItem
-                  href="/student/feedback"
-                  icon={<FileText className="h-5 w-5" />}
-                  label="Feedback"
+                  label="Reports"
                   onClick={() => setOpen(false)}
                 />
               </>
             )}
           </div>
         </nav>
-        <div className="p-4 border-t">
-          <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+        <div className="mt-auto border-t p-4">
+          <div className="text-sm text-muted-foreground mb-2">
+            Signed in as <strong>{user.name}</strong>
+          </div>
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-red-500 hover:bg-red-50 hover:text-red-600"
+            onClick={handleLogout}
+          >
             <LogOut className="mr-2 h-5 w-5" />
-            <span>Logout</span>
+            Log out
           </Button>
         </div>
       </SheetContent>
@@ -180,12 +170,17 @@ interface MobileNavItemProps {
 }
 
 function MobileNavItem({ href, icon, label, onClick }: MobileNavItemProps) {
+  const router = useRouter()
+  const isActive = router.pathname === href || router.pathname.startsWith(`${href}/`)
+
   return (
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
-        "transition-colors"
+        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+        isActive
+          ? "bg-primary/10 text-primary"
+          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100",
       )}
       onClick={onClick}
     >
@@ -194,4 +189,3 @@ function MobileNavItem({ href, icon, label, onClick }: MobileNavItemProps) {
     </Link>
   )
 }
-

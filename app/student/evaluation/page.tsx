@@ -10,4 +10,3 @@ import { PeerEvaluation } from "./peer-evaluation"
 export default function Page() {
   return <PeerEvaluation />
 }
-

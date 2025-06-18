@@ -321,4 +321,3 @@ export function SessionPreparation() {
     </div>
   )
 }
-
