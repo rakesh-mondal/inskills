@@ -4,10 +4,10 @@ import { MainNav } from "@/components/main-nav"
 import { usePathname } from "next/navigation"
 
 export function RootLayoutContent({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const shouldHideNav = pathname?.startsWith('/dashboard') || 
+  const pathname = usePathname() || ""
+  const shouldHideNav = pathname.startsWith('/dashboard') || 
                        pathname === '/login' || 
-                       pathname?.startsWith('/student')
+                       pathname.startsWith('/student')
 
   return (
     <div className="relative flex min-h-screen flex-col">
