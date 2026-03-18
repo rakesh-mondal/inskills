@@ -9,8 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useAuth } from "@/contexts/auth-context"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { InfoIcon, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import type { User } from "@/contexts/auth-context"
 import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -82,20 +81,13 @@ export function LoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <Alert className="bg-blue-50 border-blue-200">
-          <InfoIcon className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-sm">
-            <strong>Demo Accounts:</strong>
-            <br />
-            Administrator: {DEMO_CREDENTIALS[0].email}
-            <br />
-            Instructor: {DEMO_CREDENTIALS[1].email}
-            <br />
-            Student: {DEMO_CREDENTIALS[2].email}
-            <br />
-            (Any password will work)
-          </AlertDescription>
-        </Alert>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm"><strong>Demo Accounts:</strong></p>
+          <p className="text-sm">Administrator: {DEMO_CREDENTIALS[0].email}</p>
+          <p className="text-sm">Instructor: {DEMO_CREDENTIALS[1].email}</p>
+          <p className="text-sm">Student: {DEMO_CREDENTIALS[2].email}</p>
+          <p className="text-sm">(Any password will work)</p>
+        </div>
 
         <FormField
           control={form.control}
