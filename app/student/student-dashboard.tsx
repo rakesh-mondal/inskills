@@ -6,6 +6,7 @@ import { Award, Calendar, Lightbulb, TrendingUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts"
+import type { SkillArea } from "@/contexts/student-context"
 
 export function StudentDashboard() {
   const { student, loading } = useStudent()
@@ -14,62 +15,48 @@ export function StudentDashboard() {
     return <div className="flex items-center justify-center min-h-[70vh]">Loading...</div>
   }
 
-  // Safely access arrays with fallbacks
-  const upcomingSessions = student.upcomingSessions || []
-  const skills = student.skillAreas || []
-  const feedback = student.feedback || []
-  const achievements = student.achievements || []
-
   // Calculate days until next session
-  const nextSession = upcomingSessions[0]
+  const nextSession = student.upcomingSessions?.[0]
   const daysUntil = nextSession
     ? Math.ceil((new Date(nextSession.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     : 0
 
   // Format skills data for radar chart
-  const skillChartData = skills.map((skill) => ({
+  const skillChartData = (student.skillAreas || []).map((skill: SkillArea) => ({
     subject: skill.name,
-    A: skill.progress || skill.level || 0,
+    A: skill.progress,
     fullMark: 100,
   }))
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-6">
       {/* Welcome and Upcoming Session */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Welcome, {student.name || "Student"}</CardTitle>
+            <CardTitle>Welcome, {student.name}</CardTitle>
             <CardDescription>Your inskills Dashboard</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {nextSession ? (
-                <>
-                  <div className="flex items-start space-x-4">
-                    <div className="rounded-full bg-primary/10 p-2">
-                      <Calendar className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">Next Session in {daysUntil} days</p>
-                      <div className="text-sm text-muted-foreground">
-                        {nextSession.title} on {nextSession.date}
-                      </div>
-                      <Badge className="mt-2">{nextSession.role}</Badge>
-                    </div>
+              {nextSession && (
+                <div className="flex items-start space-x-4">
+                  <div className="rounded-full bg-primary/10 p-2">
+                    <Calendar className="h-5 w-5 text-primary" />
                   </div>
-                  <div>
-                    <div className="mb-1 text-sm font-medium">
-                      Session Preparation: {nextSession.preparation?.length || 0} steps to complete
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Next Session in {daysUntil} days</p>
+                    <div className="text-sm text-muted-foreground">
+                      {nextSession.title} on {nextSession.date}
                     </div>
-                    <Progress value={40} className="h-2" />
+                    <Badge className="mt-2">{nextSession.role}</Badge>
                   </div>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-muted-foreground">No upcoming sessions scheduled</p>
                 </div>
               )}
+              <div>
+                <div className="mb-1 text-sm font-medium">Session Preparation: 2 of 5 steps completed</div>
+                <Progress value={40} className="h-2" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -79,7 +66,7 @@ export function StudentDashboard() {
           <CardHeader>
             <CardTitle>Your Current Standing</CardTitle>
             <CardDescription>
-              Ranking {student.rank || "N/A"} out of {student.totalStudents || 0} students
+              Ranking {student.rank || 'N/A'} out of {student.totalStudents || 'N/A'} students
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -104,7 +91,7 @@ export function StudentDashboard() {
                   <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white">
                     1
                   </div>
-                  <div className="font-medium">Rahul Singh</div>
+                  <div className="font-medium">Taylor Brown</div>
                 </div>
                 <div>980 pts</div>
               </div>
@@ -113,7 +100,7 @@ export function StudentDashboard() {
                   <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary/80 text-white">
                     2
                   </div>
-                  <div className="font-medium">Ananya Gupta</div>
+                  <div className="font-medium">Jordan Lee</div>
                 </div>
                 <div>925 pts</div>
               </div>
@@ -122,18 +109,18 @@ export function StudentDashboard() {
                   <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary/60 text-white">
                     3
                   </div>
-                  <div className="font-medium">Priya Patel</div>
+                  <div className="font-medium">Jamie Smith</div>
                 </div>
                 <div>890 pts</div>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center">
                   <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary/40 text-white">
-                    {student.rank || "N/A"}
+                    {student.rank}
                   </div>
                   <div className="font-medium">You</div>
                 </div>
-                <div>{student.points || 0} pts</div>
+                <div>{student.points} pts</div>
               </div>
             </div>
           </CardContent>
@@ -148,20 +135,16 @@ export function StudentDashboard() {
             <CardDescription>Your progress across key competencies</CardDescription>
           </CardHeader>
           <CardContent>
-            {skillChartData.length > 0 ? (
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillChartData}>
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey="subject" />
-                    <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                    <Radar name="Skills" dataKey="A" stroke="#2563eb" fill="#2563eb" fillOpacity={0.6} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <div className="h-80 flex items-center justify-center text-muted-foreground">No skill data available</div>
-            )}
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillChartData}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="subject" />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                  <Radar name="Skills" dataKey="A" stroke="#2563eb" fill="#2563eb" fillOpacity={0.6} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -173,27 +156,23 @@ export function StudentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {feedback.length > 0 ? (
-                feedback.map((item) => (
-                  <div key={item.id} className="border-l-4 border-primary pl-4 py-2">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium text-sm">{item.sessionName}</h4>
-                      <Badge variant="outline">{item.role}</Badge>
-                    </div>
-                    <p className="text-sm mt-1">{item.comment}</p>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {(item.areas || []).map((area) => (
-                        <Badge key={area.name} variant={area.score >= 4 ? "default" : "secondary"} className="text-xs">
-                          {area.name}: {area.score}/5
-                        </Badge>
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-2">From: {item.from}</p>
+              {student.feedback.map((item) => (
+                <div key={item.id} className="border-l-4 border-primary pl-4 py-2">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-medium text-sm">{item.sessionName}</h4>
+                    <Badge variant="outline">{item.role}</Badge>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-4 text-muted-foreground">No feedback available yet</div>
-              )}
+                  <p className="text-sm mt-1">{item.comment}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {item.areas.map((area) => (
+                      <Badge key={area.name} variant={area.score >= 4 ? "default" : "secondary"} className="text-xs">
+                        {area.name}: {area.score}/5
+                      </Badge>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">From: {item.from}</p>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -208,30 +187,26 @@ export function StudentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              {achievements.length > 0 ? (
-                achievements.map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className={`border rounded-lg p-3 text-center ${
-                      achievement.earned ? "bg-primary/5" : "bg-muted/30 opacity-60"
-                    }`}
-                  >
-                    <div className="flex justify-center mb-2">
-                      <div className={`rounded-full p-2 ${achievement.earned ? "bg-primary/20" : "bg-muted"}`}>
-                        <Award className={`h-6 w-6 ${achievement.earned ? "text-primary" : "text-muted-foreground"}`} />
-                      </div>
+              {student.achievements.map((achievement) => (
+                <div
+                  key={achievement.id}
+                  className={`border rounded-lg p-3 text-center ${
+                    achievement.earned ? "bg-primary/5" : "bg-muted/30 opacity-60"
+                  }`}
+                >
+                  <div className="flex justify-center mb-2">
+                    <div className={`rounded-full p-2 ${achievement.earned ? "bg-primary/20" : "bg-muted"}`}>
+                      <Award className={`h-6 w-6 ${achievement.earned ? "text-primary" : "text-muted-foreground"}`} />
                     </div>
-                    <h4 className="font-medium text-sm">{achievement.title}</h4>
-                    <p className="text-xs text-muted-foreground mt-1">{achievement.description}</p>
-                    {achievement.earned && achievement.date && (
-                      <p className="text-xs mt-2">Earned on {achievement.date}</p>
-                    )}
-                    {!achievement.earned && <p className="text-xs mt-2 text-primary">In progress</p>}
                   </div>
-                ))
-              ) : (
-                <div className="col-span-2 text-center py-4 text-muted-foreground">No achievements yet</div>
-              )}
+                  <h4 className="font-medium text-sm">{achievement.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-1">{achievement.description}</p>
+                  {achievement.earned && achievement.date && (
+                    <p className="text-xs mt-2">Earned on {achievement.date}</p>
+                  )}
+                  {!achievement.earned && <p className="text-xs mt-2 text-primary">In progress</p>}
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>

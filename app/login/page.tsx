@@ -1,6 +1,8 @@
 import { Logo } from "@/components/logo"
 import { LoginForm } from "./login-form"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Suspense } from "react"
+import Image from "next/image"
 
 export default function LoginPage() {
   return (
@@ -17,19 +19,14 @@ export default function LoginPage() {
               <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Welcome to Inspiria inskills</h1>
               <p className="text-gray-500 dark:text-gray-400">Sign in to access the platform</p>
             </div>
-            <div className="relative hidden aspect-video overflow-hidden rounded-xl md:block">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-100 to-secondary-100 opacity-20" />
-              <div className="absolute inset-0 bg-[url('/placeholder.svg?height=720&width=1280')] bg-cover bg-center opacity-30" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="max-w-md space-y-4 p-6 text-center">
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-primary">Develop Essential Soft Skills</h2>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Track your progress, manage sessions, and receive feedback across your learning journey
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div className="relative hidden h-[300px] w-full overflow-hidden rounded-xl md:block">
+              <Image
+                src={"/images/skills-background.jpg"} // served from /public/images
+                alt="Skills background"
+                fill
+                style={{ objectFit: "cover" }}
+                priority
+              />
             </div>
           </div>
           <div className="flex flex-col justify-center space-y-4">
@@ -39,7 +36,9 @@ export default function LoginPage() {
                 <CardDescription>Enter your credentials to access your account</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <LoginForm />
+                <Suspense fallback={<div>Loading...</div>}>
+                  <LoginForm />
+                </Suspense>
               </CardContent>
               <CardFooter className="flex flex-col items-start space-y-2">
                 <div className="text-sm text-muted-foreground">

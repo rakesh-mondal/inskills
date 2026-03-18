@@ -6,7 +6,24 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, Clock, FileText, Users, AlertTriangle, CheckCircle2, Play, ClipboardCheck } from "lucide-react"
+import { Calendar, Clock, FileText, Users, AlertTriangle, CheckCircle2, Play, ClipboardCheck, Bell } from "lucide-react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 // Sample data for today's sessions
 const todaySessions = [
@@ -135,382 +152,282 @@ const performanceAlerts = [
 
 // Format time remaining for countdown
 function formatTimeRemaining(minutes: number): string {
+  if (minutes < 60) {
+    return `${minutes} minutes`
+  }
   const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  return `${hours > 0 ? `${hours}h ` : ""}${mins}m`
+  const remainingMinutes = minutes % 60
+  return `${hours}h ${remainingMinutes}m`
 }
 
 export function InstructorDashboard() {
-  const [activeTab, setActiveTab] = useState("upcoming")
+  const [activeTab, setActiveTab] = useState("today")
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Instructor Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, John Doe. Here's your facilitation overview.</p>
+          <h2 className="text-3xl font-bold tracking-tight">Instructor Dashboard</h2>
+          <p className="text-muted-foreground">
+            Welcome back! Here's an overview of your sessions and tasks.
+          </p>
         </div>
-        <Button>
-          <Calendar className="mr-2 h-4 w-4" />
-          View Calendar
-        </Button>
-      </div>
-
-      {/* Today's Sessions */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Today's Sessions</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {todaySessions.map((session) => (
-            <Card key={session.id} className={session.status === "active" ? "border-primary" : ""}>
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">{session.title}</CardTitle>
-                    <CardDescription>
-                      {session.batch} • {session.location}
-                    </CardDescription>
-                  </div>
-                  <Badge variant={session.status === "active" ? "default" : "outline"}>
-                    {session.status === "active" ? "Active" : session.status === "completed" ? "Completed" : "Upcoming"}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Clock className="mr-1 h-4 w-4" />
-                    {session.time}
-                  </div>
-                  <div className="text-sm font-medium">
-                    {session.status === "upcoming"
-                      ? `Starts in ${formatTimeRemaining(session.timeRemaining)}`
-                      : session.status === "active"
-                        ? `${formatTimeRemaining(session.timeRemaining)} remaining`
-                        : "Completed"}
-                  </div>
-                </div>
-                {session.status === "active" && <Progress value={65} className="h-2 mb-2" />}
-              </CardContent>
-              <CardFooter>
-                <div className="flex w-full justify-between">
-                  <Button variant="outline" size="sm">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Materials
-                  </Button>
-                  {session.status === "upcoming" ? (
-                    <Button size="sm">
-                      <Play className="mr-2 h-4 w-4" />
-                      Start Session
-                    </Button>
-                  ) : session.status === "active" ? (
-                    <Button size="sm">Continue Session</Button>
-                  ) : (
-                    <Button size="sm" variant="outline">
-                      <ClipboardCheck className="mr-2 h-4 w-4" />
-                      View Summary
-                    </Button>
-                  )}
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-          {todaySessions.length === 0 && (
-            <Card className="col-span-full">
-              <CardContent className="flex flex-col items-center justify-center py-8">
-                <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No sessions scheduled for today</p>
-                <Button variant="outline" className="mt-4">
-                  View Upcoming Sessions
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="icon">
+            <Bell className="h-4 w-4" />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Actions</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <FileText className="mr-2 h-4 w-4" />
+                Generate Report
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <ClipboardCheck className="mr-2 h-4 w-4" />
+                View Evaluations
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Users className="mr-2 h-4 w-4" />
+                Manage Students
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      {/* Tabs for different sections */}
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:w-auto">
-          <TabsTrigger value="upcoming">Upcoming Sessions</TabsTrigger>
-          <TabsTrigger value="evaluations">Pending Evaluations</TabsTrigger>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Today's Sessions</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{todaySessions.length}</div>
+            <p className="text-xs text-muted-foreground">
+              {todaySessions.filter(s => s.status === "active").length} active
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Evaluations</CardTitle>
+            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{pendingEvaluations.length}</div>
+            <p className="text-xs text-muted-foreground">
+              {pendingEvaluations.reduce((acc, curr) => acc + (curr.studentsCount - curr.completedCount), 0)} students remaining
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Upcoming Sessions</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{upcomingSessions.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Next 7 days
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Role Assignments</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{roleAssignments.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Pending for next session
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="today" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="today">Today's Sessions</TabsTrigger>
+          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+          <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
           <TabsTrigger value="roles">Role Assignments</TabsTrigger>
-          <TabsTrigger value="alerts">Performance Alerts</TabsTrigger>
         </TabsList>
 
-        {/* Upcoming Sessions Tab */}
-        <TabsContent value="upcoming" className="space-y-4">
+        <TabsContent value="today" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Sessions This Week</CardTitle>
-              <CardDescription>Your scheduled sessions for the next 7 days</CardDescription>
+              <CardTitle>Today's Schedule</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {upcomingSessions.map((session) => (
-                  <div
-                    key={session.id}
-                    className="flex items-start space-x-4 p-3 rounded-md hover:bg-muted transition-colors"
-                  >
-                    <div className="rounded-full bg-primary-50 p-2 mt-1">
-                      <Calendar className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium">{session.title}</p>
-                        <Badge variant="outline">{session.batch}</Badge>
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <span>
-                          {session.date} • {session.time}
-                        </span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">Location: {session.location}</div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Materials
-                    </Button>
-                  </div>
-                ))}
-                {upcomingSessions.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">No upcoming sessions scheduled for this week</p>
-                  </div>
-                )}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Session</TableHead>
+                    <TableHead>Batch</TableHead>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {todaySessions.map((session) => (
+                    <TableRow key={session.id}>
+                      <TableCell className="font-medium">{session.title}</TableCell>
+                      <TableCell>{session.batch}</TableCell>
+                      <TableCell>{session.time}</TableCell>
+                      <TableCell>{session.location}</TableCell>
+                      <TableCell>
+                        <Badge variant={session.status === "active" ? "default" : "secondary"}>
+                          {session.status === "active" ? "Active" : `In ${formatTimeRemaining(session.timeRemaining)}`}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm">
+                          {session.status === "active" ? (
+                            <>
+                              <Play className="mr-2 h-4 w-4" />
+                              Join
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="mr-2 h-4 w-4" />
+                              Prepare
+                            </>
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                View Full Calendar
-              </Button>
-            </CardFooter>
           </Card>
         </TabsContent>
 
-        {/* Pending Evaluations Tab */}
+        <TabsContent value="upcoming" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Sessions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Session</TableHead>
+                    <TableHead>Batch</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Location</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {upcomingSessions.map((session) => (
+                    <TableRow key={session.id}>
+                      <TableCell className="font-medium">{session.title}</TableCell>
+                      <TableCell>{session.batch}</TableCell>
+                      <TableCell>{session.date}</TableCell>
+                      <TableCell>{session.time}</TableCell>
+                      <TableCell>{session.location}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="evaluations" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Pending Evaluations</CardTitle>
-              <CardDescription>Sessions requiring your evaluation</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {pendingEvaluations.map((evaluation) => (
-                  <div
-                    key={evaluation.id}
-                    className="flex items-start space-x-4 p-3 rounded-md hover:bg-muted transition-colors"
-                  >
-                    <div className="rounded-full bg-amber-50 p-2 mt-1">
-                      <ClipboardCheck className="h-4 w-4 text-amber-500" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium">{evaluation.sessionTitle}</p>
-                        <Badge variant="outline">{evaluation.batch}</Badge>
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <span>Session Date: {evaluation.date}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
-                          {evaluation.completedCount}/{evaluation.studentsCount} students evaluated
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Session</TableHead>
+                    <TableHead>Batch</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Progress</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pendingEvaluations.map((evaluation) => (
+                    <TableRow key={evaluation.id}>
+                      <TableCell className="font-medium">{evaluation.sessionTitle}</TableCell>
+                      <TableCell>{evaluation.batch}</TableCell>
+                      <TableCell>{evaluation.date}</TableCell>
+                      <TableCell className="w-[200px]">
+                        <div className="flex items-center space-x-2">
+                          <Progress value={(evaluation.completedCount / evaluation.studentsCount) * 100} />
+                          <span className="text-sm text-muted-foreground">
+                            {evaluation.completedCount}/{evaluation.studentsCount}
+                          </span>
                         </div>
-                        <Progress
-                          value={(evaluation.completedCount / evaluation.studentsCount) * 100}
-                          className="h-2 w-24"
-                        />
-                      </div>
-                    </div>
-                    <Button size="sm">Complete Evaluation</Button>
-                  </div>
-                ))}
-                {pendingEvaluations.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <ClipboardCheck className="h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">No pending evaluations</p>
-                  </div>
-                )}
-              </div>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm">
+                          <ClipboardCheck className="mr-2 h-4 w-4" />
+                          Evaluate
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Role Assignments Tab */}
         <TabsContent value="roles" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Student Role Assignments</CardTitle>
-              <CardDescription>Upcoming session roles for the next 3 sessions</CardDescription>
+              <CardTitle>Role Assignments</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {roleAssignments.map((assignment) => (
-                  <div key={assignment.id} className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">{assignment.sessionTitle}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {assignment.batch} • {assignment.date}
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <Users className="mr-2 h-4 w-4" />
-                        Modify Roles
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                      {assignment.roles.map((role, index) => (
-                        <div key={index} className="flex items-center space-x-2 rounded-md border p-2">
-                          <Badge variant="outline">{role.role}</Badge>
-                          <span className="text-sm truncate">{role.student}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                {roleAssignments.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <Users className="h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">No role assignments for upcoming sessions</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Performance Alerts Tab */}
-        <TabsContent value="alerts" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Alerts</CardTitle>
-              <CardDescription>Significant changes in student performance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {performanceAlerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className="flex items-start space-x-4 p-3 rounded-md hover:bg-muted transition-colors"
-                  >
-                    <div
-                      className={`rounded-full p-2 mt-1 ${alert.type === "improvement" ? "bg-green-50" : "bg-red-50"}`}
-                    >
-                      {alert.type === "improvement" ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <AlertTriangle className="h-4 w-4 text-red-500" />
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-1">
+              <ScrollArea className="h-[400px]">
+                <div className="space-y-6">
+                  {roleAssignments.map((assignment) => (
+                    <div key={assignment.id} className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <p className="font-medium">{alert.student}</p>
-                        <Badge variant="outline">{alert.batch}</Badge>
+                        <div>
+                          <h4 className="font-medium">{assignment.sessionTitle}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {assignment.batch} • {assignment.date}
+                          </p>
+                        </div>
+                        <Button variant="outline" size="sm">
+                          Edit Roles
+                        </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground">{alert.message}</p>
+                      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+                        {assignment.roles.map((role) => (
+                          <div key={role.role} className="flex items-center space-x-2">
+                            <Avatar>
+                              <AvatarFallback>{role.student.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-sm font-medium">{role.role}</p>
+                              <p className="text-xs text-muted-foreground">{role.student}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <Separator />
                     </div>
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
-                  </div>
-                ))}
-                {performanceAlerts.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">No performance alerts at this time</p>
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Batch Overview */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Batch Overview</h2>
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">CS2023A</CardTitle>
-              <CardDescription>Computer Science • Semester 3</CardDescription>
-            </CardHeader>
-            <CardContent className="pb-2">
-              <div className="flex justify-between mb-2">
-                <div className="text-sm text-muted-foreground">Students</div>
-                <div className="font-medium">42</div>
-              </div>
-              <div className="flex justify-between mb-2">
-                <div className="text-sm text-muted-foreground">Avg. Attendance</div>
-                <div className="font-medium">92%</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="text-sm text-muted-foreground">Avg. Engagement</div>
-                <div className="font-medium">85%</div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                View Batch
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">BBA2023</CardTitle>
-              <CardDescription>Business Administration • Semester 3</CardDescription>
-            </CardHeader>
-            <CardContent className="pb-2">
-              <div className="flex justify-between mb-2">
-                <div className="text-sm text-muted-foreground">Students</div>
-                <div className="font-medium">45</div>
-              </div>
-              <div className="flex justify-between mb-2">
-                <div className="text-sm text-muted-foreground">Avg. Attendance</div>
-                <div className="font-medium">88%</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="text-sm text-muted-foreground">Avg. Engagement</div>
-                <div className="font-medium">82%</div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                View Batch
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">EC2023A</CardTitle>
-              <CardDescription>Electronics • Semester 3</CardDescription>
-            </CardHeader>
-            <CardContent className="pb-2">
-              <div className="flex justify-between mb-2">
-                <div className="text-sm text-muted-foreground">Students</div>
-                <div className="font-medium">35</div>
-              </div>
-              <div className="flex justify-between mb-2">
-                <div className="text-sm text-muted-foreground">Avg. Attendance</div>
-                <div className="font-medium">90%</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="text-sm text-muted-foreground">Avg. Engagement</div>
-                <div className="font-medium">88%</div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                View Batch
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      </div>
     </div>
   )
 }

@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
 // Define types for student data
-interface SkillArea {
+export interface SkillArea {
   name: string
   level: number
   progress: number
