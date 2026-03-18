@@ -34,6 +34,7 @@ import { useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { MobileNav } from "@/components/mobile-nav"
+import { usePathname } from "next/navigation"
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -92,9 +93,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
@@ -107,7 +110,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </header>
       <div className="flex flex-1">
-        <aside className="hidden w-64 border-r bg-white dark:bg-gray-950 md:block">
+        <aside className="hidden w-64 border-r bg-white dark:bg-gray-950 md:block sticky top-16 h-[calc(100vh-4rem)]">
           <div className="flex h-full flex-col">
             <div className="p-4 border-b">
               <div className="relative">
@@ -185,8 +188,8 @@ interface NavItemProps {
 }
 
 function NavItem({ href, icon, label }: NavItemProps) {
-  const router = useRouter()
-  const isActive = router.pathname === href || router.pathname.startsWith(`${href}/`)
+  const pathname = usePathname()
+  const isActive = pathname ? (pathname === href || pathname.startsWith(`${href}/`)) : false
 
   return (
     <Link
